@@ -1,0 +1,16 @@
+*~
+*l[ao]
+*.d
+*.o
+*.so
+*.a
+*.deps
+*.libs
+build
+\#*#
+.#*
+out.*
+err.*
+output/
+*.png
+dgetrf
