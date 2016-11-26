@@ -1,5 +1,5 @@
-#ifndef MATPROD_ERROR_H
-#define MATPROD_ERROR_H
+#ifndef PDGETRF_ERROR_H
+#define PDGETRF_ERROR_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,14 +8,14 @@
 #include <errno.h>
 
 
-#define MATPROD_ERROR_LIST(ERROR)                  \
+#define PDGETRF_ERROR_LIST(ERROR)                  \
     ERROR(SUCCESS)                              \
 
 
-#define MATPROD_ERROR_TO_ENUM(error) MATPROD_ERROR_##error,
+#define PDGETRF_ERROR_TO_ENUM(error) PDGETRF_ERROR_##error,
 
 enum matprod_error_code {
-    MATPROD_ERROR_LIST(MATPROD_ERROR_TO_ENUM)
+    PDGETRF_ERROR_LIST(PDGETRF_ERROR_TO_ENUM)
 };
 
 char const *matprod_errmsg(int errcode);
@@ -61,4 +61,4 @@ char const *matprod_errmsg(int errcode);
 #define matprod_debug(format_, ...) ((void) (format_))
 #endif // DEBUG
 
-#endif // MATPROD_ERROR_H
+#endif // PDGETRF_ERROR_H

@@ -20,17 +20,17 @@
 #ifdef DEQUAL
 #undef DEQUAL
 #endif
-#define DEQUAL(X_, Y_, H_) (fabs((X_) - (Y_)) < (H_))
+#define DEQUAL(X_, Y_, EPS_) (fabs((X_) - (Y_)) < (EPS_))
 
 #ifdef SQUARE
 #undef SQUARE
 #endif
-#define SQUARE(X_) ((X_)*(X_))
+#define SQUARE(X_) ((uint64_t)(X_)*(uint64_t)(X_))
 
 #ifdef CUBE
 #undef CUBE
 #endif
-#define CUBE(X_) ((X_)*(X_)*(X_))
+#define CUBE(X_) ((uint64_t)(X_)*(uint64_t)(X_)*(uint64_t)(X_))
 
 #ifdef __FMA__
 #define MM256_FMADD_PD(a, b, c) _mm256_fmadd_pd(a, b, c)

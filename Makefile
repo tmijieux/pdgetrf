@@ -1,5 +1,5 @@
-TARGET=dgetrf
-CFLAGS=-std=gnu99 -g -Wall -Wextra $(shell pkg-config --cflags glib-2.0)
+TARGET=dgetrf perf_driver
+CFLAGS=-std=gnu99 -g -Wall -Wextra $(shell pkg-config --cflags glib-2.0) -fopenmp
 LDFLAGS=-lm $(shell pkg-config --libs glib-2.0) 
 GENGETOPT=gengetopt
 CC=mpicc
@@ -19,19 +19,28 @@ LDFLAGS+= -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_intel_lp64.a \
 	-ldl -lpthread -lm -fopenmp
 endif
 
-SRC=	main.c \
-	perf/perf.c \
-	error.c \
-	util.c
 
-OBJ=$(SRC:.c=.o)
-DEP=$(SRC:.c=.d)
+SRC = 	perf/perf.c \
+	error.c \
+	util.c \
+	getrf.c
+
+test_SRC = main.c $(SRC)
+perf_SRC = perf_driver.c $(SRC)
+
+test_OBJ=$(test_SRC:.c=.o)
+perf_OBJ=$(perf_SRC:.c=.o)
+
+DEP=$(SRC:.c=.d) main.d perf_driver.d
 
 all: $(TARGET)
 
 -include $(DEP)
 
-dgetrf: $(OBJ)
+dgetrf: $(test_OBJ)
+	$(CC) $^ -o $@ $(LDFLAGS)
+
+perf_driver: $(perf_OBJ)
 	$(CC) $^ -o $@ $(LDFLAGS)
 
 %.o: %.c
@@ -39,7 +48,7 @@ dgetrf: $(OBJ)
 	$(CC) -c $(CFLAGS) $*.c -o $*.o
 
 clean:
-	$(RM) $(TARGET) $(OBJ) $(DEP) *.d *.o
+	$(RM) $(OBJ) $(DEP) *.d *.o
 
 mrproper: clean
 	$(RM) $(TARGET)
