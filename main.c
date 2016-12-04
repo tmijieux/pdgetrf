@@ -29,7 +29,7 @@ void test_dgesv_1(void) // test solve Ax=b "bloc"
     tdp_vector_print(N, X, stdout);
 
     // solve:
-    dgesv(CblasColMajor, CblasNoTrans, N, A, N, X, 1);
+    tdp_dgesv(CblasColMajor, CblasNoTrans, N, A, N, X, 1);
 
     printf("\"LU\":\n");
     tdp_matrix_print(N, N, A, N, stdout);
@@ -59,7 +59,7 @@ void test_dgesv2_1(void) // test solve Ax=b "scalaire"
     tdp_vector_print(N, X, stdout);
 
     // solve:
-    dgesv2(CblasColMajor, CblasNoTrans, N, A, N, X, 1);
+    tdp_dgesv2(CblasColMajor, CblasNoTrans, N, A, N, X, 1);
 
     printf("\"LU\":\n");
     tdp_matrix_print(N, N, A, N, stdout);

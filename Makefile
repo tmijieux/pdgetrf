@@ -4,6 +4,8 @@ LDFLAGS=-lm $(shell pkg-config --libs glib-2.0)
 GENGETOPT=gengetopt
 CC=mpicc
 
+CFLAGS+=-fdiagnostics-color=auto
+
 ifdef DEBUG
 CFLAGS+=-ggdb -O0 -DDEBUG=1
 else

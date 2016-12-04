@@ -42,8 +42,8 @@ dgetrf_nopiv(int N, double *A, int lda, int b/*lock_size*/)
 
 // General Matrix Solve Vector "scalaire" (solve Ax=b avec b vecteur)
 void
-dgesv2(const enum CBLAS_ORDER order, const enum CBLAS_TRANSPOSE TransA,
-       const int N, double *A, const int lda, double *X, const int incX)
+tdp_dgesv2(const CBLAS_ORDER order, const CBLAS_TRANSPOSE TransA,
+           const int N, double *A, const int lda, double *X, const int incX)
 {
     assert( order == CblasColMajor );
     assert( TransA == CblasNoTrans );
@@ -63,8 +63,8 @@ dgesv2(const enum CBLAS_ORDER order, const enum CBLAS_TRANSPOSE TransA,
 
 // general matrix solve vector "bloc" (solve Ax=b avec b vecteur)
 void
-dgesv(const enum CBLAS_ORDER order, const enum CBLAS_TRANSPOSE TransA,
-      const int N, double *A, const int lda, double *X, const int incX)
+tdp_dgesv(const CBLAS_ORDER order, const CBLAS_TRANSPOSE TransA,
+          const int N, double *A, const int lda, double *X, const int incX)
 {
     assert( order == CblasColMajor );
     assert( TransA == CblasNoTrans );
