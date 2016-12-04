@@ -6,24 +6,13 @@
 
 typedef struct timeval perf_t;
 
-void
-perf(perf_t * p);
+void perf(perf_t * p);
+void perf_diff(const perf_t * begin, perf_t * end);
+void perf_printh(const perf_t * p);
+void perf_printmicro(const perf_t * p);
+double perf_mflops(const perf_t * p, const uint64_t nb_op);
 
-void
-perf_diff(const perf_t * begin, perf_t * end);
+#define PERF_MICRO(p) ((uint64_t) (&p)->tv_usec + ((&p)->tv_sec * 1000000UL))
+#define PERF_MFLOPS(p, nb_op) ( (double)nb_op / PERF_MICRO(p) )
 
-void
-perf_printh(const perf_t * p);
-
-void
-perf_printmicro(const perf_t * p);
-
-double
-perf_mflops(const perf_t * p, const uint64_t nb_op);
-
-
-uint64_t
-perf_get_micro(const perf_t *p);
-
-
-#endif
+#endif // PERF_H

@@ -14,3 +14,4 @@ err.*
 output/
 *.png
 dgetrf
+perf_driver
