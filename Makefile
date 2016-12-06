@@ -26,7 +26,8 @@ endif
 SRC = 	perf/perf.c \
 	error.c \
 	util.c \
-	getrf.c
+	getrf.c \
+	gesv.c
 
 test_SRC = main.c $(SRC)
 perf_SRC = perf_driver.c $(SRC)

@@ -6,6 +6,7 @@
 
 #include "util.h"
 #include "getrf.h"
+#include "gesv.h"
 
 void test_dgesv_1(void) // test solve Ax=b "bloc"
 {
@@ -29,7 +30,7 @@ void test_dgesv_1(void) // test solve Ax=b "bloc"
     tdp_vector_print(N, X, stdout);
 
     // solve:
-    tdp_dgesv(CblasColMajor, CblasNoTrans, N, A, N, X, 1);
+    tdp_dgesv(CblasColMajor, CblasNoTrans, N, A, N, X, 1, N/2);
 
     printf("\"LU\":\n");
     tdp_matrix_print(N, N, A, N, stdout);

@@ -2,11 +2,10 @@
 
 #include "util.h"
 #include "getrf.h"
-
+#include "incblas.h"
 
 // factorisation LU "scalaire"
-void
-dgetf2_nopiv(int m, int n, double *A, int lda)
+void tdp_dgetf2_nopiv(int m, int n, double *A, int lda)
 {
     int N = min(m, n);
     for (int k = 0; k < N; ++k) {
@@ -18,16 +17,15 @@ dgetf2_nopiv(int m, int n, double *A, int lda)
 }
 
 // factorisation LU "bloc"
-void
-dgetrf_nopiv(int N, double *A, int lda, int b/*lock_size*/)
+void tdp_dgetrf_nopiv(int N, double *A, int lda, int b/*lock_size*/)
 {
     assert( (N % b) == 0 );
     int NT = N / b;
-    printf("block_size=%d\n", b);
-    printf("NT=%d\n", NT);
+    /* printf("block_size=%d\n", b); */
+    /* printf("NT=%d\n", NT); */
 
     for (int k = 0; k < NT; ++k) {
-        dgetf2_nopiv(N-k*b, b, A+b*(k*lda+k), lda);
+        tdp_dgetf2_nopiv(N-k*b, b, A+b*(k*lda+k), lda);
         cblas_dtrsm(CblasColMajor, CblasLeft,
                     CblasLower, CblasNoTrans, CblasUnit,
                     b, N-b*(k+1), 1.0, A+b*(k*lda+k), lda,
@@ -38,46 +36,4 @@ dgetrf_nopiv(int N, double *A, int lda, int b/*lock_size*/)
                     A+b*((k+1)*lda+k), lda,
                     1.0, A+b*((k+1)*lda+k+1), lda);
     }
-}
-
-// General Matrix Solve Vector "scalaire" (solve Ax=b avec b vecteur)
-void
-tdp_dgesv2(const CBLAS_ORDER order, const CBLAS_TRANSPOSE TransA,
-           const int N, double *A, const int lda, double *X, const int incX)
-{
-    assert( order == CblasColMajor );
-    assert( TransA == CblasNoTrans );
-
-    dgetf2_nopiv(N, N, A, lda);
-
-    // L y = B ("descente")
-    cblas_dtrsv(CblasColMajor, CblasLower,
-                CblasNoTrans, CblasUnit,
-                N, A, lda, X, incX);
-
-    // U x = y ("remontée")
-    cblas_dtrsv(CblasColMajor, CblasUpper,
-                CblasNoTrans, CblasNonUnit,
-                N, A, lda, X, incX);
-}
-
-// general matrix solve vector "bloc" (solve Ax=b avec b vecteur)
-void
-tdp_dgesv(const CBLAS_ORDER order, const CBLAS_TRANSPOSE TransA,
-          const int N, double *A, const int lda, double *X, const int incX)
-{
-    assert( order == CblasColMajor );
-    assert( TransA == CblasNoTrans );
-
-    dgetrf_nopiv(N, A, lda, 5);
-
-    // L y = B ("descente")
-    cblas_dtrsv(CblasColMajor, CblasLower,
-                CblasNoTrans, CblasUnit,
-                N, A, lda, X, incX);
-
-    // U x = y ("remontée")
-    cblas_dtrsv(CblasColMajor, CblasUpper,
-                CblasNoTrans, CblasNonUnit,
-                N, A, lda, X, incX);
 }

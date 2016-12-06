@@ -17,12 +17,14 @@ void test_dgetf2_nopiv(void)
         perf_t p1, p2;
         perf(&p1);
 
-        dgetf2_nopiv(N, N, A, N);
+        tdp_dgetf2_nopiv(N, N, A, N);
 
         perf(&p2);
         perf_diff(&p1, &p2);
 
-        printf("%d %lu %g\n", N, PERF_MICRO(p2), PERF_MFLOPS(p2, (2.0/3.0)*CUBE(N)));
+        printf("%d %lu %g\n", N,
+               PERF_MICRO(p2),
+               PERF_MFLOPS(p2, (2.0/3.0)*CUBE(N)));
         free(A);
     }
 }
@@ -36,12 +38,14 @@ void test_1_dgetrf_nopiv(int N, int b)
     perf_t p1, p2;
     perf(&p1);
 
-    dgetrf_nopiv(N, A, N, b);
+    tdp_dgetrf_nopiv(N, A, N, b);
 
     perf(&p2);
     perf_diff(&p1, &p2);
 
-    printf("%d %d %lu %g\n", N, b, PERF_MICRO(p2), PERF_MFLOPS(p2, (2.0/3.0)*CUBE(N)));
+    printf("%d %d %lu %g\n", N, b,
+           PERF_MICRO(p2),
+           PERF_MFLOPS(p2, (2.0/3.0)*CUBE(N)));
     free(A);
 }
 
