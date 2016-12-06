@@ -38,7 +38,6 @@ void test_dgesv_1(void) // test solve Ax=b "bloc"
     tdp_vector_print(N, X, stdout);
 }
 
-
 void test_dgesv2_1(void) // test solve Ax=b "scalaire"
 {
     // initialization:
@@ -68,25 +67,11 @@ void test_dgesv2_1(void) // test solve Ax=b "scalaire"
     tdp_vector_print(N, X, stdout);
 }
 
-/* #define TEST(type, symbol)                              \ */
-/*     do {                                                \ */
-/*         printf("Testing \"%s\" %s.\n", #type, #symbol);	\ */
-/*         test_##type(symbol);				\ */
-/*     }while(0) */
-
-/* #define BENCH(type, symbol)                             \ */
-/*     do {						\ */
-/*         /\* printf("\nBenching %s:\n", #symbol);  *\/	\ */
-/*         printf("%s\n", #symbol);			\ */
-/*         bench_##type(symbol);                           \ */
-/*     }while(0) */
-
 #define TEST(type)                              \
-    do {                                        \
+    do{                                         \
         printf("Testing \"%s\".\n", #type);	\
         test_##type();				\
     }while(0)
-
 
 int main(int argc, char *argv[])
 {

@@ -7,6 +7,7 @@
 #include <malloc.h>
 
 #include "util.h"
+#include "incblas.h"
 
 /**
  * Pretty print the matrix 'mat'
@@ -27,10 +28,10 @@ void tdp_matrix_print(int m/*rows*/, int n/*columns*/,
 /**
  * Return a new zero'd (m x n) matrix
  */
-double *tdp_matrix_new(int m/*rows*/, int n/*columns*/)
+double *tdp_matrix_new(int M/*rows*/, int N/*columns*/)
 {
     double *d;
-    d = calloc(m*n, sizeof*d);
+    d = calloc(M*N, sizeof*d);
     return d;
 }
 
