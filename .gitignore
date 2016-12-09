@@ -13,5 +13,6 @@ out.*
 err.*
 output/
 *.png
-dgetrf
+pdgetrf
 perf_driver
+test_driver

@@ -4,7 +4,7 @@
 #include "incblas.h"
 #include "gesv.h"
 
-// General Matrix Solve Vector "scalaire" (solve Ax=b avec b vecteur)
+// General Matrix Solve Vector "scalaire (blas2)" (solve Ax=b avec b vecteur)
 void tdp_dgesv2(const CBLAS_ORDER order,
                 const CBLAS_TRANSPOSE TransA,
                 const int N, double *A, const int lda,

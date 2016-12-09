@@ -1,4 +1,4 @@
-TARGET=dgetrf perf_driver
+TARGET=pdgetrf perf_driver test_driver
 CFLAGS=-std=gnu99 -g -Wall -Wextra $(shell pkg-config --cflags glib-2.0) -fopenmp
 LDFLAGS=-lm $(shell pkg-config --libs glib-2.0) 
 GENGETOPT=gengetopt
@@ -29,11 +29,13 @@ SRC = 	perf/perf.c \
 	getrf.c \
 	gesv.c
 
-test_SRC = main.c $(SRC)
+test_SRC = test_driver.c $(SRC)
 perf_SRC = perf_driver.c $(SRC)
+pdgetrf_SRC = main.c $(SRC)
 
 test_OBJ=$(test_SRC:.c=.o)
 perf_OBJ=$(perf_SRC:.c=.o)
+pdgetrf_OBJ=$(pdgetrf_SRC:.c=.o)
 
 DEP=$(SRC:.c=.d) main.d perf_driver.d
 
@@ -41,10 +43,13 @@ all: $(TARGET)
 
 -include $(DEP)
 
-dgetrf: $(test_OBJ)
+pdgetrf: $(pdgetrf_OBJ)
 	$(CC) $^ -o $@ $(LDFLAGS)
 
 perf_driver: $(perf_OBJ)
+	$(CC) $^ -o $@ $(LDFLAGS)
+
+test_driver: $(test_OBJ)
 	$(CC) $^ -o $@ $(LDFLAGS)
 
 %.o: %.c

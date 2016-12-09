@@ -4,7 +4,7 @@
 #include "getrf.h"
 #include "incblas.h"
 
-// factorisation LU "scalaire"
+// factorisation LU "scalaire (BLAS2)"
 void tdp_dgetf2_nopiv(int m, int n, double *A, int lda)
 {
     int N = min(m, n);
@@ -16,7 +16,7 @@ void tdp_dgetf2_nopiv(int m, int n, double *A, int lda)
     }
 }
 
-// factorisation LU "bloc"
+// factorisation LU "bloc (BLAS3)"
 void tdp_dgetrf_nopiv(int N, double *A, int lda, int b/*lock_size*/)
 {
     assert( (N % b) == 0 );
@@ -36,4 +36,10 @@ void tdp_dgetrf_nopiv(int N, double *A, int lda, int b/*lock_size*/)
                     A+b*((k+1)*lda+k), lda,
                     1.0, A+b*((k+1)*lda+k+1), lda);
     }
+}
+
+void tdp_pdgetrf_nopiv(int N, double *A, int lda, int b/*lock_size*/)
+{
+
+
 }
