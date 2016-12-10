@@ -12,13 +12,13 @@
 /**
  * Pretty print the matrix 'mat'
  */
-void tdp_matrix_print(int m/*rows*/, int n/*columns*/,
-                      double *mat, int lda/*leading dimension*/,
+void tdp_matrix_print(int64_t m/*rows*/, int64_t n/*columns*/,
+                      double *mat, int64_t lda/*leading dimension*/,
                       FILE *out)
 {
 
-    for (int i = 0; i < m; ++i) {
-        for (int j = 0; j < n; ++j)
+    for (int64_t i = 0; i < m; ++i) {
+        for (int64_t j = 0; j < n; ++j)
             fprintf(out, "%3g ", mat[j*lda+i]);
         fprintf(out, "\n");
     }
@@ -28,7 +28,7 @@ void tdp_matrix_print(int m/*rows*/, int n/*columns*/,
 /**
  * Return a new zero'd (m x n) matrix
  */
-double *tdp_matrix_new(int M/*rows*/, int N/*columns*/)
+double *tdp_matrix_new(int64_t M/*rows*/, int64_t N/*columns*/)
 {
     double *d;
     d = calloc(M*N, sizeof*d);
@@ -38,17 +38,17 @@ double *tdp_matrix_new(int M/*rows*/, int N/*columns*/)
 /**
  * Set the matrix elements to random values taken in interval [min, max]
  */
-void tdp_matrix_rand(int m/*rows*/, int n/*columns*/,
+void tdp_matrix_rand(int64_t m/*rows*/, int64_t n/*columns*/,
                      double *mat, double min, double max)
 {
-    for (int i = 0 ; i < m*n; ++i)
+    for (int64_t i = 0 ; i < m*n; ++i)
         mat[i] = min + ((double)rand() / RAND_MAX)*(max-min);
 }
 
 /**
  * Set matrix elements to 0.0
  */
-void tdp_matrix_zero(int m/*rows*/, int n/*columns*/, double *mat)
+void tdp_matrix_zero(int64_t m/*rows*/, int64_t n/*columns*/, double *mat)
 {
     memset(mat, 0, sizeof*mat*m*n);
 }
@@ -56,12 +56,12 @@ void tdp_matrix_zero(int m/*rows*/, int n/*columns*/, double *mat)
 /**
  * Set the matrix' main diagonal elements to 'value', and other to 0.0
  */
-void tdp_matrix_one(int m/*rows*/, int n/*columns*/,
-                    double value, double *mat, int lda/*leading dimension*/)
+void tdp_matrix_one(int64_t m/*rows*/, int64_t n/*columns*/,
+                    double value, double *mat, int64_t lda/*leading dimension*/)
 {
     tdp_matrix_zero(m, n, mat);
-    int M = min(m, n);
-    for (int j = 0; j < M; ++j)
+    int64_t M = min(m, n);
+    for (int64_t j = 0; j < M; ++j)
         mat[j*lda+j] = value;
 }
 
@@ -69,27 +69,27 @@ void tdp_matrix_one(int m/*rows*/, int n/*columns*/,
 /**
  * Set the matrix' main elements to 'value'
  */
-void tdp_matrix_fill(int m/*rows*/, int n/*columns*/,
-                     double value, double *mat, int lda/*leading dimension*/)
+void tdp_matrix_fill(int64_t m/*rows*/, int64_t n/*columns*/,
+                     double value, double *mat, int64_t lda/*leading dimension*/)
 {
-    for (int j = 0; j < m; ++j)
-        for (int i = 0; i < n; ++i)
+    for (int64_t j = 0; j < m; ++j)
+        for (int64_t i = 0; i < n; ++i)
             mat[j*lda+i] = value;
 }
 
 /**
  * Set the matrix' main diagonal elements to 'value', and other to 0.0
  */
-void tdp_matrix_3one(int m/*rows*/, int n/*columns*/,
+void tdp_matrix_3one(int64_t m/*rows*/, int64_t n/*columns*/,
                      double v1, double v2,
-                     double *mat, int lda/*leading dimension*/)
+                     double *mat, int64_t lda/*leading dimension*/)
 {
     tdp_matrix_zero(m, n, mat);
-    int M = min(m, n);
+    int64_t M = min(m, n);
 
     mat[0] = v1;
     mat[1] = v2;
-    for (int j = 1; j < M-1; ++j) {
+    for (int64_t j = 1; j < M-1; ++j) {
         mat[j*lda+j-1] = v2;
         mat[j*lda+j] = v1;
         mat[j*lda+j+1] = v2;
@@ -101,7 +101,7 @@ void tdp_matrix_3one(int m/*rows*/, int n/*columns*/,
 /**
  * Return new zero'd vector
  */
-double *tdp_vector_new(int m)
+double *tdp_vector_new(int64_t m)
 {
     double *d;
     d = calloc(m, sizeof*d);
@@ -111,25 +111,25 @@ double *tdp_vector_new(int m)
 /**
  * Set vector elements with random values taken in interval [min, max]
  */
-void tdp_vector_rand(int m, double min, double max, double *v)
+void tdp_vector_rand(int64_t m, double min, double max, double *v)
 {
-    for (int i = 0; i < m; ++i)
+    for (int64_t i = 0; i < m; ++i)
         v[i] = min + ((double)rand() / RAND_MAX) * (max-min);
 }
 
 /**
  * Set all vector elements to 'value'
  */
-void tdp_vector_one(int m, double value, double *v)
+void tdp_vector_one(int64_t m, double value, double *v)
 {
-    for (int i = 0; i < m; ++i)
+    for (int64_t i = 0; i < m; ++i)
         v[i] = value;
 }
 
 /**
  * Set vector elements to 0.0
  */
-void tdp_vector_zero(int m, double *v)
+void tdp_vector_zero(int64_t m, double *v)
 {
     memset(v, 0, m*sizeof v[0]);
 }
@@ -137,9 +137,9 @@ void tdp_vector_zero(int m, double *v)
 /**
  * Pretty print the vector
  */
-void tdp_vector_print(int m, double *v, FILE *out)
+void tdp_vector_print(int64_t m, double *v, FILE *out)
 {
-    for (int i = 0; i < m; ++i)
+    for (int64_t i = 0; i < m; ++i)
         fprintf(out, "%g\n", v[i]);
 }
 
@@ -150,8 +150,8 @@ double *tdp_cache_garbage(void)
 
     uint64_t s = S * (((uint64_t)log(S))+1);
     while (s > 0) {
-        int i = rand() % (S/sizeof *a);
-        int k = rand() % (S/sizeof *a);
+        int64_t i = rand() % (S/sizeof *a);
+        int64_t k = rand() % (S/sizeof *a);
         a[i] = a[k];
         s -= sizeof *a;
     }
@@ -202,7 +202,7 @@ void tdp_print_cache_size(void)
     PRINT_CACHE_DETAILS(3);
 }
 
-uint64_t tdp_get_cache_size(int id)
+uint64_t tdp_get_cache_size(int64_t id)
 {
     assert(id >= 1 && id <= 3);
     return GETCACHESIZE(id);

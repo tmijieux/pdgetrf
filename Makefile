@@ -1,10 +1,10 @@
 TARGET=pdgetrf perf_driver test_driver
-CFLAGS=-std=gnu99 -g -Wall -Wextra $(shell pkg-config --cflags glib-2.0) -fopenmp
-LDFLAGS=-lm $(shell pkg-config --libs glib-2.0) 
+CFLAGS=-std=gnu99 -g -Wall -Wextra
+LDFLAGS=
 GENGETOPT=gengetopt
-CC=mpicc
+CC=mpiicc
 
-CFLAGS+=-fdiagnostics-color=auto
+CFLAGS+=#-fdiagnostics-color=auto
 
 ifdef DEBUG
 CFLAGS+=-ggdb -O0 -DDEBUG=1
@@ -15,11 +15,8 @@ endif
 ifeq ($(strip $(BLASLIB)),)
 LDFLAGS+=-lopenblas
 else
-LDFLAGS+= -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_intel_lp64.a \
-	${MKLROOT}/lib/intel64/libmkl_core.a ${MKLROOT}/lib/intel64/libmkl_gnu_thread.a \
-	-Wl,--end-group ${MKLROOT}/lib/intel64/libmkl_blacs_openmpi_lp64.a \
-	-ldl -lpthread -lm -fopenmp
-CFLAGS+=-DMKL
+LDFLAGS+= -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_intel_ilp64.a ${MKLROOT}/lib/intel64/libmkl_intel_thread.a ${MKLROOT}/lib/intel64/libmkl_core.a -Wl,--end-group -liomp5 -lpthread -lm -ldl
+CFLAGS+=-DTDP_USE_MKL  -DMKL_ILP64 -I${MKLROOT}/include
 endif
 
 

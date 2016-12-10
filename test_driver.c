@@ -67,6 +67,13 @@ void test_dgesv2_1(void) // test solve Ax=b "scalaire"
     tdp_vector_print(N, X, stdout);
 }
 
+
+void test_pdgesv(void)
+{
+    
+}
+
+
 #define TEST(type)                              \
     do{                                         \
         printf("Testing \"%s\".\n", #type);	\
