@@ -2,7 +2,8 @@ TARGET=pdgetrf perf_driver test_driver
 CFLAGS=-std=gnu99 -g -Wall -Wextra
 LDFLAGS=
 GENGETOPT=gengetopt
-CC=mpiicc
+#CC=mpiicc
+CC=mpicc
 
 CFLAGS+=#-fdiagnostics-color=auto
 
@@ -13,7 +14,7 @@ CFLAGS+=-O3
 endif
 
 ifeq ($(strip $(BLASLIB)),)
-LDFLAGS+=-lopenblas
+LDFLAGS+=-lopenblas -lm
 else
 LDFLAGS+= -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_intel_ilp64.a ${MKLROOT}/lib/intel64/libmkl_intel_thread.a ${MKLROOT}/lib/intel64/libmkl_core.a -Wl,--end-group -liomp5 -lpthread -lm -ldl
 CFLAGS+=-DTDP_USE_MKL  -DMKL_ILP64 -I${MKLROOT}/include
