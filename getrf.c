@@ -110,7 +110,6 @@ static void setup_mpi_types(int64_t b, int64_t ld_block, int64_t ld_tmp)
 {
     MPI_Datatype tmp;
     MPI_Aint lb, ext;
-    printf("ld_tmp=%ld, ld_block = %ld\n", ld_tmp, ld_block);
 
     // block
     MPI_Type_vector(b, b, ld_block, MPI_DOUBLE, &tmp);
@@ -142,8 +141,8 @@ static void tdp_pdgetrf_nopiv_impl(
         bool me = dist->block_owner[k] == proc->rank;
         int64_t K = dist->block_idx[k];
         int64_t L = dist->local_block_count - (K+1);
-        printf("r=%d; k=%ld; K=%ld; L=%ld, NB=%ld;%s\n",
-               proc->rank, k, K, L, NB, me ? " me!" : "");
+        /* printf("r=%d; k=%ld; K=%ld; L=%ld, NB=%ld;%s\n", */
+        /*        proc->rank, k, K, L, NB, me ? " me!" : ""); */
         double *trf_ptr = me ? A+b*(K*lda+k) : tmp+b*k;
         int64_t trf_ld = me ? lda : N;
         double *col_ptr = me ? A+b*(K*lda+k+1) : tmp+b*(k+1);
@@ -203,7 +202,6 @@ static void tdp_pdgetrf_nopiv_impl(
         MPI_Barrier(MPI_COMM_WORLD);
         #endif
     }
-
     free(tmp);
 }
 
@@ -213,8 +211,8 @@ void tdp_pdgetrf_nopiv(int64_t N, double *A,
 {
     assert( A != NULL );
 
-    /* if (proc->group_size == 1) */
-    /*     tdp_dgetrf_nopiv(N, A, lda, b); // not distributed */
-    /* else */
+    if (proc->group_size == 1)
+        tdp_dgetrf_nopiv(N, A, lda, b); // not distributed
+    else
         tdp_pdgetrf_nopiv_impl(N, A, lda, b, dist, proc);
 }
