@@ -90,9 +90,9 @@ void tdp_trf_dist_snake(
     }
 
     if (!proc->rank) {
-        for (int64_t i = 0; i < NB; ++i)
-            fprintf(stderr, "#owner[%ld] = %ld\n", i, owner[i]);
-        printf("#owned=%ld\n", owned_count);
+        /* for (int64_t i = 0; i < NB; ++i) */
+        /*     fprintf(stderr, "#owner[%ld] = %ld\n", i, owner[i]); */
+        /* printf("#owned=%ld\n", owned_count); */
     }
     free(idx);
 
@@ -141,8 +141,10 @@ static void tdp_pdgetrf_nopiv_impl(
         bool me = dist->block_owner[k] == proc->rank;
         int64_t K = dist->block_idx[k];
         int64_t L = dist->local_block_count - (K+1);
-        /* printf("r=%d; k=%ld; K=%ld; L=%ld, NB=%ld;%s\n", */
-        /*        proc->rank, k, K, L, NB, me ? " me!" : ""); */
+        #ifdef DEBUG
+        printf("r=%d; k=%ld; K=%ld; L=%ld, NB=%ld;%s\n",
+               proc->rank, k, K, L, NB, me ? " me!" : "");
+        #endif
         double *trf_ptr = me ? A+b*(K*lda+k) : tmp+b*k;
         int64_t trf_ld = me ? lda : N;
         double *col_ptr = me ? A+b*(K*lda+k+1) : tmp+b*(k+1);
@@ -156,7 +158,7 @@ static void tdp_pdgetrf_nopiv_impl(
 
         //printf("r=%d checkpoint A\n", proc->rank);
         // BCAST( A(k,k)<k> )
-        
+
         MPI_Datatype btype = me ? block_type : tmp_block_type;
         MPI_Bcast(trf_ptr, 1, btype,
                   dist->block_owner[k], MPI_COMM_WORLD);

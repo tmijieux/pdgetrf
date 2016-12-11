@@ -8,7 +8,7 @@
 #SBATCH --nodes=9
 #SBATCH --ntasks-per-node=1
 
-# 4 noeud / 4 proc MPI / mkl parallele 20 threads
+# 9 noeud / 9 proc MPI / mkl parallele 20 threads
 
 WORKDIR=${WORKDIR:-${HOME}/pdgetrf}
 

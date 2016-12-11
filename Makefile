@@ -2,8 +2,8 @@ TARGET=pdgetrf perf_driver test_driver
 CFLAGS=-std=gnu99 -g -Wall -Wextra
 LDFLAGS=
 GENGETOPT=gengetopt
-#CC=mpiicc
-CC=mpicc
+CC=mpiicc
+#CC=mpicc
 
 CFLAGS+=#-fdiagnostics-color=auto
 

@@ -74,7 +74,7 @@ static void dist_snake_init_test(
 {
     assert( (N % b) == 0 );
     int64_t NB = N / b;
-    
+
     if (dist->block_owner[0] == proc->rank) {
         for (int i = 0; i < N; ++i)
             A[i] = 1.0;
@@ -85,12 +85,12 @@ static void dist_snake_init_test(
         if (dist->block_owner[k] == proc->rank) {
             int64_t K = dist->block_idx[k];
             double *B = A+(K*b)*lda+k*b-1;
-            
+
             for (int i = 0; i < b; i++)
                 B[i*lda+i] = (double) k*b+i;
         }
     }
-    
+
     for (int i = 0; i < N-1; ++i)
         X[i] = 2.0 + i;
     X[N-1] = 1.0;
@@ -114,10 +114,10 @@ void test_pdgesv(tdp_proc *proc)
 
     tdp_trf_dist dist;
     tdp_trf_dist_snake(&dist, N, b, proc);
-    
+
     double *A = tdp_matrix_new(N, b*dist.local_block_count);
     double *X = tdp_vector_new(N);
-    
+
     dist_snake_init_test(proc, &dist, N, b, A, X, N);
     print_distributed_matrix(&dist, proc, N, b, A);
     tdp_pdgesv(N, A, N, X, 1, b, &dist, proc);
@@ -125,7 +125,7 @@ void test_pdgesv(tdp_proc *proc)
     if (!proc->rank)
         puts("GETRF:");
     print_distributed_matrix(&dist, proc, N, b, A);
-    
+
     if (!proc->rank) {
         printf("solution:\n");
         tdp_vector_print(N, X, stdout);
@@ -154,9 +154,9 @@ int main(int argc, char *argv[])
 
     tdp_proc proc;
     tdp_proc_init(&proc);
-    
+
     test_pdgesv(&proc);
-    
+
     MPI_Finalize();
     return EXIT_SUCCESS;
 }

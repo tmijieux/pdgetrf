@@ -34,29 +34,25 @@ static void trf_rand_matrix(tdp_proc *proc, int N, int b, tdp_trf_time *time)
     perf_t p1, p2, p3, p4;
     tdp_trf_dist dist;
 
-    printf("dist START\n");
     perf(&p1);
     tdp_trf_dist_snake(&dist, N, b, proc);
     perf(&time->dist_time);
-    printf("dist END\nalloc START\n");
 
     perf(&p2);
     double *A = tdp_matrix_new(N, b*dist.local_block_count);
     perf(&time->alloc_time);
 
-    printf("alloc END\nr=%d BC=%ld\nA=%p size=%luMB\nrand START\n",
+    printf("r=%d BC=%ld A=%p size=%luMB\n",
            proc->rank, dist.local_block_count, A,
            (N*b*dist.local_block_count*8UL) / (1024*1024));
 
     perf(&p3);
     tdp_matrix_rand(N, b*dist.local_block_count, A, -1.0, 1.0);
     perf(&time->rand_time);
-    printf("rand END\ncompute START\n");
 
     perf(&p4);
     tdp_pdgetrf_nopiv(N, A, N, b, &dist, proc);
     perf(&time->compute_time);
-    printf("compute END\n");
 
     // ----------------
     time->total_time = time->compute_time;
@@ -110,7 +106,7 @@ int main(int argc, char *argv[])
     MPI_Comm_rank(MPI_COMM_WORLD, &proc.rank);
     print_proc_info(&proc);
 
-    int N = 2000, b = 200;
+    int N = 20000, b = 160; // 80, 100, 125, 160, 200, 250, 400, 500, 625
     trf_rand_matrix(&proc, N, b, &time);
 
     print_time(proc.rank, &time, N);

@@ -24,7 +24,7 @@ static void pdtrsv_upper_nonunit(
             cblas_dtrsv(CblasColMajor, CblasUpper,
                         CblasNoTrans, CblasNonUnit,
                         b, A+b*(K*lda+k), lda, X+k*b, incX);
-            
+
             //eliminer les inconnus:
             cblas_dgemv(CblasColMajor, CblasNoTrans,
                         k*b, b,
@@ -48,10 +48,10 @@ void pdtrsv_lower_unit(
             cblas_dtrsv(CblasColMajor, CblasLower,
                         CblasNoTrans, CblasUnit,
                         b, A+b*(K*lda+k), lda, X+k*b, incX);
-            
+
             //eliminer les inconnus:
             cblas_dgemv(CblasColMajor, CblasNoTrans,
-                        N-(k+1)*b, b, 
+                        N-(k+1)*b, b,
                         -1.0, A+b*(K*lda+k+1), lda,
                         X+k*b, incX,
                         1.0, X+(k+1)*b, incX  );
@@ -61,8 +61,8 @@ void pdtrsv_lower_unit(
 }
 
 void tdp_pdtrsv(
-    const enum CBLAS_ORDER order, const enum CBLAS_UPLO Uplo,
-    const enum CBLAS_TRANSPOSE TransA, const enum CBLAS_DIAG Diag,
+    const CBLAS_ORDER order, const CBLAS_UPLO Uplo,
+    const CBLAS_TRANSPOSE TransA, const CBLAS_DIAG Diag,
     const int64_t N, int64_t b, const double *A,
     const int64_t lda, double *X, const int64_t incX,
     tdp_trf_dist *dist, tdp_proc *proc)
@@ -70,16 +70,16 @@ void tdp_pdtrsv(
     assert( (N % b) == 0 );
     assert( order == CblasColMajor );
     assert( TransA == CblasNoTrans );
-    
-    
+
+
     if (Uplo == CblasUpper) {
         assert( Diag == CblasNonUnit );
-        
+
         pdtrsv_upper_nonunit(dist, proc, N, b, A, lda, X, incX);
     } else {
         assert( Uplo == CblasLower );
         assert( Diag == CblasUnit );
-        
+
         pdtrsv_lower_unit(dist, proc, N, b, A, lda, X, incX);
     }
 }
