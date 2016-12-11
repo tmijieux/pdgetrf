@@ -106,7 +106,8 @@ int main(int argc, char *argv[])
     MPI_Comm_rank(MPI_COMM_WORLD, &proc.rank);
     print_proc_info(&proc);
 
-    int N = 20000, b = 160; // 80, 100, 125, 160, 200, 250, 400, 500, 625
+    int N = 20000, b = 200; // 30, 40, 50, 80, 100, 125, 160, 200, 250, 400, 500, 625
+    // int N = 1000, b = 100; 
     trf_rand_matrix(&proc, N, b, &time);
 
     print_time(proc.rank, &time, N);

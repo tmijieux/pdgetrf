@@ -59,7 +59,7 @@ compute_prev_block(int64_t NB, int64_t rank, tdp_trf_dist *dist)
     }
 }
 
-void tdp_trf_dist_snake(
+void tdp_trf_dist_snake2(
     tdp_trf_dist *dist, int64_t N, int64_t b, tdp_proc *proc)
 {
     assert( (N % b) == 0 );
@@ -89,11 +89,13 @@ void tdp_trf_dist_snake(
         k = k+inc;
     }
 
+    #ifdef DEBUG
     if (!proc->rank) {
-        /* for (int64_t i = 0; i < NB; ++i) */
-        /*     fprintf(stderr, "#owner[%ld] = %ld\n", i, owner[i]); */
-        /* printf("#owned=%ld\n", owned_count); */
+        for (int64_t i = 0; i < NB; ++i)
+            fprintf(stderr, "#owner[%ld] = %ld\n", i, owner[i]);
+        printf("#owned=%ld\n", owned_count);
     }
+    #endif
     free(idx);
 
     dist->block_owner = owner;
@@ -102,6 +104,62 @@ void tdp_trf_dist_snake(
 
     compute_prev_block(NB, proc->rank, dist);
 }
+
+void tdp_trf_dist_snake(
+    tdp_trf_dist *dist, int64_t N, int64_t b, tdp_proc *proc)
+{
+    assert( (N % b) == 0 );
+
+    int64_t NB = N / b;
+    int64_t *owner = malloc(sizeof*owner * NB);
+    int64_t *block_idx = malloc(sizeof*owner * NB);
+    int64_t k = 0;
+    int64_t inc = 1;
+    int64_t owned_count = 0;
+
+    int64_t *idx = calloc(proc->group_size, sizeof idx[0]);
+    bool direct = true;
+    
+    for (int64_t i = 0; i < NB; ++i) {
+        if (direct) {
+            owner[i] = k;
+            block_idx[i] = idx[k] ++;
+            if (k == proc->rank)
+                ++ owned_count;
+            ++ k;
+            if (k == proc->group_size) {
+                direct = false;
+                --k;
+            }
+        } else {
+            owner[i] = k;
+            block_idx[i] = idx[k] ++;
+            if (k == proc->rank)
+                ++ owned_count;
+            -- k;
+            if (k == -1) {
+                direct = true;
+                ++ k;
+            }
+        }
+    }
+
+    #ifdef DEBUG
+    if (!proc->rank) {
+        for (int64_t i = 0; i < NB; ++i)
+            fprintf(stderr, "#owner[%ld] = %ld\n", i, owner[i]);
+        printf("#owned=%ld\n", owned_count);
+    }
+    #endif
+    free(idx);
+
+    dist->block_owner = owner;
+    dist->block_idx = block_idx;
+    dist->local_block_count = owned_count;
+
+    compute_prev_block(NB, proc->rank, dist);
+}
+
 
 static MPI_Datatype block_type;
 static MPI_Datatype tmp_block_type;
