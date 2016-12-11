@@ -1,8 +1,10 @@
 #include <assert.h>
 
+#include "util.h"
 #include "getrf.h"
 #include "incblas.h"
 #include "gesv.h"
+#include "trsv.h"
 
 // General Matrix Solve Vector "scalaire (blas2)" (solve Ax=b avec b vecteur)
 void tdp_dgesv2(const CBLAS_ORDER order,
@@ -49,8 +51,19 @@ void tdp_dgesv(const CBLAS_ORDER order,
                 N, A, lda, X, incX);
 }
 
-void tdp_pdgesv(const int64_t N, double *A, const int64_t lda,
-                double *X, tdp_trf_dist *dist, tdp_proc *proc)
+void tdp_pdgesv(
+    const int64_t N, double *A, const int64_t lda,
+    double *X, const int64_t incX, const int64_t b,
+    tdp_trf_dist *dist, tdp_proc *proc)
 {
+    tdp_pdgetrf_nopiv(N, A, lda, b, dist, proc);
 
+    // L y = B ("descente")
+    tdp_pdtrsv(CblasColMajor, CblasLower,
+               CblasNoTrans, CblasUnit,
+               N, b, A, lda, X, incX, dist, proc);
+
+    tdp_pdtrsv(CblasColMajor, CblasUpper,
+               CblasNoTrans, CblasNonUnit,
+               N, b, A, lda, X, incX, dist, proc);
 }

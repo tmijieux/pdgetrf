@@ -17,6 +17,12 @@
 #define max(x, y) ((x) > (y) ? (x) : (y))
 #endif
 
+#ifdef PASTE
+#undef PASTE
+#endif
+#define PASTE(X, Y) PASTE2(X, Y)
+#define PASTE2(X, Y) X ## Y
+
 #ifdef DEQUAL
 #undef DEQUAL
 #endif

@@ -3,6 +3,7 @@
 #include <time.h>
 #include <string.h>
 #include <assert.h>
+#include <mpi.h>
 
 #include "util.h"
 #include "getrf.h"
@@ -67,12 +68,69 @@ void test_dgesv2_1(void) // test solve Ax=b "scalaire"
     tdp_vector_print(N, X, stdout);
 }
 
-
-void test_pdgesv(void)
+static void dist_snake_init_test(
+    tdp_proc *proc, tdp_trf_dist *dist, int64_t N, int64_t b,
+    double *A,  double *X, int lda)
 {
+    assert( (N % b) == 0 );
+    int64_t NB = N / b;
     
+    if (dist->block_owner[0] == proc->rank) {
+        for (int i = 0; i < N; ++i)
+            A[i] = 1.0;
+        for (int i = 1; i < b; ++i)
+            A[i*lda+i-1] = i;
+    }
+    for (int k = 1; k < NB; ++k) {
+        if (dist->block_owner[k] == proc->rank) {
+            int64_t K = dist->block_idx[k];
+            double *B = A+(K*b)*lda+k*b-1;
+            
+            for (int i = 0; i < b; i++)
+                B[i*lda+i] = (double) k*b+i;
+        }
+    }
+    
+    for (int i = 0; i < N-1; ++i)
+        X[i] = 2.0 + i;
+    X[N-1] = 1.0;
 }
 
+static void print_distributed_matrix(
+    tdp_trf_dist *dist, tdp_proc *proc, int64_t N, int64_t b, double *A)
+{
+    for (int i = 0; i < proc->group_size; ++i) {
+        if (proc->rank == i) {
+            printf("rank=%d:\n", proc->rank);
+            tdp_matrix_print(N, b*dist->local_block_count, A, N, stdout);
+        }
+        MPI_Barrier(MPI_COMM_WORLD);
+    }
+}
+
+void test_pdgesv(tdp_proc *proc)
+{
+    int N = 10, b = 2;
+
+    tdp_trf_dist dist;
+    tdp_trf_dist_snake(&dist, N, b, proc);
+    
+    double *A = tdp_matrix_new(N, b*dist.local_block_count);
+    double *X = tdp_vector_new(N);
+    
+    dist_snake_init_test(proc, &dist, N, b, A, X, N);
+    print_distributed_matrix(&dist, proc, N, b, A);
+    tdp_pdgesv(N, A, N, X, 1, b, &dist, proc);
+
+    if (!proc->rank)
+        puts("GETRF:");
+    print_distributed_matrix(&dist, proc, N, b, A);
+    
+    if (!proc->rank) {
+        printf("solution:\n");
+        tdp_vector_print(N, X, stdout);
+    }
+}
 
 #define TEST(type)                              \
     do{                                         \
@@ -80,12 +138,25 @@ void test_pdgesv(void)
         test_##type();				\
     }while(0)
 
+static void tdp_proc_init(tdp_proc *proc)
+{
+    MPI_Comm_size(MPI_COMM_WORLD, &proc->group_size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &proc->rank);
+}
+
 int main(int argc, char *argv[])
 {
+    MPI_Init(NULL, NULL);
     srand(time(NULL)+(long)&argc);
 
-    TEST(dgesv_1);
-    TEST(dgesv2_1);
+    /* TEST(dgesv_1); */
+    /* TEST(dgesv2_1); */
 
+    tdp_proc proc;
+    tdp_proc_init(&proc);
+    
+    test_pdgesv(&proc);
+    
+    MPI_Finalize();
     return EXIT_SUCCESS;
 }

@@ -29,7 +29,6 @@ void test_dgetf2_nopiv(void)
     }
 }
 
-
 void test_1_dgetrf_nopiv(int N, int b)
 {
     double *A = tdp_matrix_new(N, N);

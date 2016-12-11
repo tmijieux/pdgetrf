@@ -51,7 +51,7 @@ compute_prev_block(int64_t NB, int64_t rank, tdp_trf_dist *dist)
             j = i;
             while (j >= 0 && dist->block_owner[j] != rank)
                 -- j;
-            if (j > 0)
+            if (j >= 0)
                 dist->block_idx[i] = dist->block_idx[j];
             else
                 dist->block_idx[i] = -1;
@@ -108,22 +108,22 @@ static MPI_Datatype tmp_block_type;
 
 static void setup_mpi_types(int64_t b, int64_t ld_block, int64_t ld_tmp)
 {
-    MPI_Datatype tmp1, tmp2;
-    
-    MPI_Type_vector(b, b, ld_block, MPI_DOUBLE, &tmp1);
-    MPI_Type_vector(b, b, ld_tmp, MPI_DOUBLE, &tmp2);
-
+    MPI_Datatype tmp;
     MPI_Aint lb, ext;
-    MPI_Type_get_extent(tmp1, &lb, &ext);
-    ext = b;
-    MPI_Type_create_resized(tmp1, lb, ext, &block_type);
+    printf("ld_tmp=%ld, ld_block = %ld\n", ld_tmp, ld_block);
 
-    MPI_Type_get_extent(tmp2, &lb, &ext);
-    ext = b;
-    MPI_Type_create_resized(tmp2, lb, ext, &tmp_block_type);
-
-    
+    // block
+    MPI_Type_vector(b, b, ld_block, MPI_DOUBLE, &tmp);
+    MPI_Type_get_extent(tmp, &lb, &ext);
+    ext = b*sizeof(double);
+    MPI_Type_create_resized(tmp, lb, ext, &block_type);
     MPI_Type_commit(&block_type);
+
+    // tmp
+    MPI_Type_vector(b, b, ld_tmp, MPI_DOUBLE, &tmp);
+    MPI_Type_get_extent(tmp, &lb, &ext);
+    ext = b*sizeof(double);
+    MPI_Type_create_resized(tmp, lb, ext, &tmp_block_type);
     MPI_Type_commit(&tmp_block_type);
 }
 
@@ -135,16 +135,15 @@ static void tdp_pdgetrf_nopiv_impl(
 
     assert( (N % b) == 0 );
     const int64_t NB = N / b; /* nombre de bloc */
-    //memset(&dist, 0, sizeof dist);
 
-
-    double *tmp = malloc(N*b*sizeof*tmp);
+    double *tmp = tdp_matrix_new(N, b);
 
     for (int64_t k = 0; k < NB; ++k) {
         bool me = dist->block_owner[k] == proc->rank;
         int64_t K = dist->block_idx[k];
         int64_t L = dist->local_block_count - (K+1);
-        printf("r=%d; k=%ld; K=%ld; L=%ld, NB=%ld;\n", proc->rank, k, K, L, NB);
+        printf("r=%d; k=%ld; K=%ld; L=%ld, NB=%ld;%s\n",
+               proc->rank, k, K, L, NB, me ? " me!" : "");
         double *trf_ptr = me ? A+b*(K*lda+k) : tmp+b*k;
         int64_t trf_ld = me ? lda : N;
         double *col_ptr = me ? A+b*(K*lda+k+1) : tmp+b*(k+1);
@@ -156,14 +155,14 @@ static void tdp_pdgetrf_nopiv_impl(
             // DGETF(k,k)
             tdp_dgetf2_nopiv(b, b, trf_ptr, trf_ld);
 
-
         //printf("r=%d checkpoint A\n", proc->rank);
         // BCAST( A(k,k)<k> )
+        
         MPI_Datatype btype = me ? block_type : tmp_block_type;
         MPI_Bcast(trf_ptr, 1, btype,
                   dist->block_owner[k], MPI_COMM_WORLD);
 
-        if (me) {
+         if (me) {
             cblas_dtrsm(CblasColMajor, CblasRight,
                         CblasUpper, CblasNoTrans, CblasNonUnit,
                         N-b*(k+1), b, 1.0, trf_ptr, trf_ld, col_ptr, col_ld);
@@ -195,6 +194,14 @@ static void tdp_pdgetrf_nopiv_impl(
                     col_ptr, col_ld, line_ptr, lda, 1.0, block_ptr, lda);
         // DGEMM( SUB_COL<k> x RIGHT_LINE )
         //printf("r=%d checkpoint E\n", proc->rank);
+
+        #ifdef DEBUG
+        MPI_Barrier(MPI_COMM_WORLD);
+        if (proc->rank == 0) {
+            printf("\n________________\n");
+        }
+        MPI_Barrier(MPI_COMM_WORLD);
+        #endif
     }
 
     free(tmp);

@@ -25,7 +25,8 @@ SRC = 	perf/perf.c \
 	error.c \
 	util.c \
 	getrf.c \
-	gesv.c
+	gesv.c \
+	trsv.c
 
 test_SRC = test_driver.c $(SRC)
 perf_SRC = perf_driver.c $(SRC)

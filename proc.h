@@ -3,13 +3,13 @@
 
 #include <stdint.h>
 
-typedef struct tdp_proc {
+typedef struct tdp_proc_ {
     int rank;
     int group_size;
 
 } tdp_proc;
 
-typedef struct tdp_trf_dist {
+typedef struct tdp_trf_dist_ {
     int64_t *block_owner; // block_owner[x] = rank of process owning block x
 
     int64_t *block_idx;
