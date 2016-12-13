@@ -96,22 +96,35 @@ static void print_time(int rank, tdp_trf_time *time, int N)
 
 int main(int argc, char *argv[])
 {
+    perf_t i1, i2;
     srand(time(NULL)+(long)&argc);
-    MPI_Init(NULL, NULL);
 
+    perf(&i1);
+    MPI_Init(NULL, NULL);
+    perf(&i2);
+    perf_diff(&i1, &i2);
     tdp_proc proc;
     tdp_trf_time time;
 
     MPI_Comm_size(MPI_COMM_WORLD, &proc.group_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &proc.rank);
+    fprintf(stderr, "init_time[%d]=%lu\n\n", proc.rank, PERF_MICRO(i2));
+
     print_proc_info(&proc);
 
-    int N = 20000, b = 200; // 30, 40, 50, 80, 100, 125, 160, 200, 250, 400, 500, 625
-    // int N = 1000, b = 100; 
+    int N = 20000, b = 200; // 30, 40, 50, 80, 100, 125,
+                            // 160, 200, 250, 400, 500, 625
+    // int N = 1000, b = 100;
     trf_rand_matrix(&proc, N, b, &time);
 
     print_time(proc.rank, &time, N);
 
+    perf_t f1, f2;
+    perf(&f1);
     MPI_Finalize();
+    perf(&f2);
+    perf_diff(&f1, &f2);
+    fprintf(stderr, "fini_time[%d]=%lu\n\n", proc.rank, PERF_MICRO(f2));
+
     return EXIT_SUCCESS;
 }

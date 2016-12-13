@@ -119,7 +119,7 @@ void tdp_trf_dist_snake(
 
     int64_t *idx = calloc(proc->group_size, sizeof idx[0]);
     bool direct = true;
-    
+
     for (int64_t i = 0; i < NB; ++i) {
         if (direct) {
             owner[i] = k;
