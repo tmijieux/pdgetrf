@@ -64,7 +64,6 @@ static void trf_rand_matrix(tdp_proc *proc, int N, int b, tdp_trf_time *time)
     perf_diff(&p1, &time->total_time);
 }
 
-
 #define REDUCE_PRINT_TIME(v_, t_) do {                          \
         uint64_t tmp_ = PERF_MICRO((t_)-> PASTE(v_, _time));    \
         MPI_Reduce(&tmp_, &(v_), 1, MPI_UNSIGNED_LONG,          \
@@ -74,7 +73,6 @@ static void trf_rand_matrix(tdp_proc *proc, int N, int b, tdp_trf_time *time)
                    v_, (double) v_ / 1000000UL);                \
         }                                                       \
     } while(0)
-
 
 static void print_time(int rank, tdp_trf_time *time, int N)
 {
@@ -90,30 +88,41 @@ static void print_time(int rank, tdp_trf_time *time, int N)
     if (!rank) {
         puts("");
         printf("MFLOPS=%g\n", PERF_MFLOPS2( compute, (2.0/3.0)*CUBE(N)));
+        printf("GFLOPS=%g\n", PERF_MFLOPS2( compute, (2.0/3.0)*CUBE(N)) / 1000.0);
+        printf("TFLOPS=%g\n", PERF_MFLOPS2( compute, (2.0/3.0)*CUBE(N)) / 1000000.0);
         puts("");
     }
+}
+
+
+static void
+tdp_proc_init(tdp_proc *proc)
+{
+    MPI_Comm_size(MPI_COMM_WORLD, &proc->group_size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &proc->rank);
+
 }
 
 int main(int argc, char *argv[])
 {
     perf_t i1, i2;
+
     srand(time(NULL)+(long)&argc);
+
+    tdp_proc proc;
+    tdp_trf_time time;
 
     perf(&i1);
     MPI_Init(NULL, NULL);
     perf(&i2);
     perf_diff(&i1, &i2);
-    tdp_proc proc;
-    tdp_trf_time time;
 
-    MPI_Comm_size(MPI_COMM_WORLD, &proc.group_size);
-    MPI_Comm_rank(MPI_COMM_WORLD, &proc.rank);
-    fprintf(stderr, "init_time[%d]=%lu\n\n", proc.rank, PERF_MICRO(i2));
-
+    tdp_proc_init(&proc);
+    fprintf(stderr, "init_time[%d]=%lu µs\n\n", proc.rank, PERF_MICRO(i2));
     print_proc_info(&proc);
 
-    int N = 20000, b = 200; // 30, 40, 50, 80, 100, 125,
-                            // 160, 200, 250, 400, 500, 625
+    int b = 200;// 30, 40, 50, 80, 100, 125, 160, 200, 250, 400, 500, 625
+    int N = 40000;
     // int N = 1000, b = 100;
     trf_rand_matrix(&proc, N, b, &time);
 
@@ -124,7 +133,7 @@ int main(int argc, char *argv[])
     MPI_Finalize();
     perf(&f2);
     perf_diff(&f1, &f2);
-    fprintf(stderr, "fini_time[%d]=%lu\n\n", proc.rank, PERF_MICRO(f2));
+    fprintf(stderr, "fini_time[%d]=%lu µs\n\n", proc.rank, PERF_MICRO(f2));
 
     return EXIT_SUCCESS;
 }

@@ -71,7 +71,6 @@ void tdp_pdtrsv(
     assert( order == CblasColMajor );
     assert( TransA == CblasNoTrans );
 
-
     if (Uplo == CblasUpper) {
         assert( Diag == CblasNonUnit );
 
@@ -83,4 +82,3 @@ void tdp_pdtrsv(
         pdtrsv_lower_unit(dist, proc, N, b, A, lda, X, incX);
     }
 }
-

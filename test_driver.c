@@ -99,6 +99,7 @@ static void dist_snake_init_test(
 static void print_distributed_matrix(
     tdp_trf_dist *dist, tdp_proc *proc, int64_t N, int64_t b, double *A)
 {
+    MPI_Barrier(MPI_COMM_WORLD);
     for (int i = 0; i < proc->group_size; ++i) {
         if (proc->rank == i) {
             printf("rank=%d:\n", proc->rank);
@@ -106,6 +107,7 @@ static void print_distributed_matrix(
         }
         MPI_Barrier(MPI_COMM_WORLD);
     }
+    MPI_Barrier(MPI_COMM_WORLD);
 }
 
 void test_pdgesv(tdp_proc *proc)
@@ -119,6 +121,12 @@ void test_pdgesv(tdp_proc *proc)
     double *X = tdp_vector_new(N);
 
     dist_snake_init_test(proc, &dist, N, b, A, X, N);
+    if (!proc->rank) {
+        printf("B:\n");
+        tdp_vector_print(N, X, stdout);
+    }
+
+
     print_distributed_matrix(&dist, proc, N, b, A);
     tdp_pdgesv(N, A, N, X, 1, b, &dist, proc);
 
