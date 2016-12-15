@@ -1,0 +1,29 @@
+#rank=0; group_size=9; node hostname='mistral02'
+#rank=1; group_size=9; node hostname='mistral03'
+#rank=8; group_size=9; node hostname='mistral10'
+#rank=7; group_size=9; node hostname='mistral09'
+#rank=6; group_size=9; node hostname='mistral08'
+#rank=4; group_size=9; node hostname='mistral06'
+#rank=3; group_size=9; node hostname='mistral05'
+#rank=5; group_size=9; node hostname='mistral07'
+#rank=2; group_size=9; node hostname='mistral04'
+r=0 BC=23 A=0x7fa6f4430010 size=1403MB
+r=1 BC=23 A=0x7f5238430010 size=1403MB
+r=8 BC=22 A=0x7f18ac139010 size=1342MB
+r=7 BC=22 A=0x7fb6d8139010 size=1342MB
+r=6 BC=22 A=0x7fcad8139010 size=1342MB
+r=4 BC=22 A=0x7f1a1c139010 size=1342MB
+r=3 BC=22 A=0x7f46e4139010 size=1342MB
+r=5 BC=22 A=0x7fefac139010 size=1342MB
+r=2 BC=22 A=0x7fb520139010 size=1342MB
+
+dist_time=548 µs || 0.000548 s
+alloc_time=16 µs || 1.6e-05 s
+rand_time=5381932 µs || 5.38193 s
+compute_time=36444848 µs || 36.4448 s
+total_time=40390807 µs || 40.3908 s
+
+MFLOPS=1.17072e+06
+GFLOPS=1170.72
+TFLOPS=1.17072
+

@@ -9,19 +9,27 @@
 #include "getrf.h"
 #include "gesv.h"
 
-void test_dgesv_1(void) // test solve Ax=b "bloc"
+
+
+static void init_test_matrices(int N, double *A, double *X)
 {
-    // initialization:
-    int const N = 10;
-    double *A = tdp_matrix_new(N, N);
-    double *X = tdp_vector_new(N);
-    for (int i = 0; i < N-1; ++i) {
+   for (int i = 0; i < N-1; ++i) {
         A[i] = 1.0;
         A[(i+1)*N+i] = 1.0 + (double) i;
         X[i] = 2.0 + (double) i;
     }
     A[N-1] = 1.0;
     X[N-1] = 1.0;
+}
+
+
+void test_dgesv_nopiv_1(void) // test solve Ax=b "bloc"
+{
+    // initialization:
+    int const N = 10;
+    double *A = tdp_matrix_new(N, N);
+    double *X = tdp_vector_new(N);
+    init_test_matrices(N, A, X);
 
     // initial "check"
     printf("A:\n");
@@ -31,7 +39,7 @@ void test_dgesv_1(void) // test solve Ax=b "bloc"
     tdp_vector_print(N, X, stdout);
 
     // solve:
-    tdp_dgesv(CblasColMajor, CblasNoTrans, N, A, N, X, 1, N/2);
+    tdp_dgesv_nopiv(CblasColMajor, CblasNoTrans, N, A, N, X, 1, N/2);
 
     printf("\"LU\":\n");
     tdp_matrix_print(N, N, A, N, stdout);
@@ -39,19 +47,13 @@ void test_dgesv_1(void) // test solve Ax=b "bloc"
     tdp_vector_print(N, X, stdout);
 }
 
-void test_dgesv2_1(void) // test solve Ax=b "scalaire"
+void test_dgesv2_nopiv_1(void) // test solve Ax=b "scalaire"
 {
     // initialization:
     int const N = 10;
     double *A = tdp_matrix_new(N, N);
     double *X = tdp_vector_new(N);
-    for (int i = 0; i < N-1; ++i) {
-        A[i] = 1.0;
-        A[(i+1)*N+i] = 1.0 + (double) i;
-        X[i] = 2.0 + (double) i;
-    }
-    A[N-1] = 1.0;
-    X[N-1] = 1.0;
+    init_test_matrices(N, A, X);
 
     // initial "check"
     printf("A:\n");
@@ -60,7 +62,7 @@ void test_dgesv2_1(void) // test solve Ax=b "scalaire"
     tdp_vector_print(N, X, stdout);
 
     // solve:
-    tdp_dgesv2(CblasColMajor, CblasNoTrans, N, A, N, X, 1);
+    tdp_dgesv2_nopiv(CblasColMajor, CblasNoTrans, N, A, N, X, 1);
 
     printf("\"LU\":\n");
     tdp_matrix_print(N, N, A, N, stdout);
@@ -110,7 +112,7 @@ static void print_distributed_matrix(
     MPI_Barrier(MPI_COMM_WORLD);
 }
 
-void test_pdgesv(tdp_proc *proc)
+void test_pdgesv_nopiv(tdp_proc *proc)
 {
     int N = 10, b = 2;
 
@@ -128,7 +130,7 @@ void test_pdgesv(tdp_proc *proc)
 
 
     print_distributed_matrix(&dist, proc, N, b, A);
-    tdp_pdgesv(N, A, N, X, 1, b, &dist, proc);
+    tdp_pdgesv_nopiv(N, A, N, X, 1, b, &dist, proc);
 
     if (!proc->rank)
         puts("GETRF:");
@@ -152,6 +154,30 @@ static void tdp_proc_init(tdp_proc *proc)
     MPI_Comm_rank(MPI_COMM_WORLD, &proc->rank);
 }
 
+
+
+void test_dgetf2(void) // test solve Ax=b "scalaire"
+{
+    // initialization:
+    int const N = 10;
+    double *A = tdp_matrix_new(N, N);
+    double *X = tdp_vector_new(N);
+    init_test_matrices(N, A, X);
+    tdp_matrix_print(N, N, A, N, stdout);
+
+    int64_t info;
+    int64_t *ipiv = malloc(sizeof*ipiv * N);
+    tdp_dgetf2(N, N, A, N, ipiv, &info);
+    tdp_matrix_print(N, N, A, N, stdout);
+
+    puts("ipiv: ");
+    for (int64_t i = 0; i < N; ++i) {
+        printf("%ld ", ipiv[i]);
+    }
+    puts("");
+}
+
+
 int main(int argc, char *argv[])
 {
     MPI_Init(NULL, NULL);
@@ -163,8 +189,12 @@ int main(int argc, char *argv[])
     tdp_proc proc;
     tdp_proc_init(&proc);
 
-    test_pdgesv(&proc);
+    //test_pdgesv_nopiv(&proc);
+    test_dgetf2();
+
 
     MPI_Finalize();
     return EXIT_SUCCESS;
 }
+
+

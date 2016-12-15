@@ -1,4 +1,3 @@
-
 #include <assert.h>
 #include <mpi.h>
 #include <string.h>
@@ -336,4 +335,34 @@ void tdp_pdgetrf_nopiv(int64_t N, double *A,
         tdp_dgetrf_nopiv(N, A, lda, b); // not distributed
     else
         tdp_pdgetrf_nopiv_impl(N, A, lda, b, dist, proc);
+}
+
+
+
+/* --------------------------------------------- */
+// WITH PIVOT
+
+// factorisation LU "scalaire (BLAS2)"
+void tdp_dgetf2(int64_t m, int64_t n, double *A, int64_t lda,
+                int64_t ipiv[m], int64_t *info)
+{
+    int64_t N = min(m, n);
+    *info = 0L;
+
+    for (int64_t k = 0; k < N; ++k) {
+
+        int64_t p = k + cblas_idamax(m-k, A+k*lda+k, 1);
+        ipiv[k] = p;
+        if (A[p*lda+p] != 0) {
+            if (p != k)
+                cblas_dswap(n, A+k, lda, A+k+p, lda);
+
+            cblas_dscal(m-k-1, 1.0/A[k*lda+k], A+k*lda+k+1, 1);
+        } else if (*info == 0) {
+            *info = k;
+        }
+        cblas_dger(CblasColMajor, m-k-1, n-k-1, -1.0,
+                   A+k*lda+k+1, 1, A+(k+1)*lda+k, lda,
+                   A+(k+1)*lda+k+1, lda);
+    }
 }

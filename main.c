@@ -100,7 +100,6 @@ tdp_proc_init(tdp_proc *proc)
 {
     MPI_Comm_size(MPI_COMM_WORLD, &proc->group_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &proc->rank);
-
 }
 
 int main(int argc, char *argv[])

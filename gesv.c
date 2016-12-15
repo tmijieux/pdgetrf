@@ -7,10 +7,10 @@
 #include "trsv.h"
 
 // General Matrix Solve Vector "scalaire (blas2)" (solve Ax=b avec b vecteur)
-void tdp_dgesv2(const CBLAS_ORDER order,
-                const CBLAS_TRANSPOSE TransA,
-                const int64_t N, double *A, const int64_t lda,
-                double *X, const int64_t incX)
+void tdp_dgesv2_nopiv(const CBLAS_ORDER order,
+                      const CBLAS_TRANSPOSE TransA,
+                      const int64_t N, double *A, const int64_t lda,
+                      double *X, const int64_t incX)
 {
     assert( order == CblasColMajor );
     assert( TransA == CblasNoTrans );
@@ -29,10 +29,10 @@ void tdp_dgesv2(const CBLAS_ORDER order,
 }
 
 // general matrix solve vector "bloc" (solve Ax=b avec b vecteur)
-void tdp_dgesv(const CBLAS_ORDER order,
-               const CBLAS_TRANSPOSE TransA,
-               const int64_t N, double *A, const int64_t lda,
-               double *X, const int64_t incX, const int64_t block_size)
+void tdp_dgesv_nopiv(const CBLAS_ORDER order,
+                     const CBLAS_TRANSPOSE TransA,
+                     const int64_t N, double *A, const int64_t lda,
+                     double *X, const int64_t incX, const int64_t block_size)
 {
     assert( order == CblasColMajor );
     assert( TransA == CblasNoTrans );
@@ -51,7 +51,7 @@ void tdp_dgesv(const CBLAS_ORDER order,
                 N, A, lda, X, incX);
 }
 
-void tdp_pdgesv(
+void tdp_pdgesv_nopiv(
     const int64_t N, double *A, const int64_t lda,
     double *X, const int64_t incX, const int64_t b,
     tdp_trf_dist *dist, tdp_proc *proc)
@@ -67,3 +67,5 @@ void tdp_pdgesv(
                CblasNoTrans, CblasNonUnit,
                N, b, A, lda, X, incX, dist, proc);
 }
+
+
