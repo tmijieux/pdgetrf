@@ -9,8 +9,6 @@
 #include "getrf.h"
 #include "gesv.h"
 
-
-
 static void init_test_matrices(int N, double *A, double *X)
 {
    for (int i = 0; i < N-1; ++i) {
@@ -21,7 +19,6 @@ static void init_test_matrices(int N, double *A, double *X)
     A[N-1] = 1.0;
     X[N-1] = 1.0;
 }
-
 
 void test_dgesv_nopiv_1(void) // test solve Ax=b "bloc"
 {
@@ -45,6 +42,10 @@ void test_dgesv_nopiv_1(void) // test solve Ax=b "bloc"
     tdp_matrix_print(N, N, A, N, stdout);
     printf("solution:\n");
     tdp_vector_print(N, X, stdout);
+
+    for (int i = 0; i < N; ++i) {
+        assert( X[i] == 1.0 );
+    }
 }
 
 void test_dgesv2_nopiv_1(void) // test solve Ax=b "scalaire"
@@ -68,6 +69,12 @@ void test_dgesv2_nopiv_1(void) // test solve Ax=b "scalaire"
     tdp_matrix_print(N, N, A, N, stdout);
     printf("solution:\n");
     tdp_vector_print(N, X, stdout);
+
+
+    for (int i = 0; i < N; ++i) {
+        assert( X[i] == 1.0 );
+    }
+
 }
 
 static void dist_snake_init_test(
@@ -128,7 +135,6 @@ void test_pdgesv_nopiv(tdp_proc *proc)
         tdp_vector_print(N, X, stdout);
     }
 
-
     print_distributed_matrix(&dist, proc, N, b, A);
     tdp_pdgesv_nopiv(N, A, N, X, 1, b, &dist, proc);
 
@@ -139,6 +145,10 @@ void test_pdgesv_nopiv(tdp_proc *proc)
     if (!proc->rank) {
         printf("solution:\n");
         tdp_vector_print(N, X, stdout);
+    }
+
+    for (int i = 0; i < N; ++i) {
+        assert( X[i] == 1.0 );
     }
 }
 
@@ -153,8 +163,6 @@ static void tdp_proc_init(tdp_proc *proc)
     MPI_Comm_size(MPI_COMM_WORLD, &proc->group_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &proc->rank);
 }
-
-
 
 void test_dgetf2(void) // test solve Ax=b "scalaire"
 {
@@ -177,21 +185,19 @@ void test_dgetf2(void) // test solve Ax=b "scalaire"
     puts("");
 }
 
-
 int main(int argc, char *argv[])
 {
     MPI_Init(NULL, NULL);
     srand(time(NULL)+(long)&argc);
 
-    /* TEST(dgesv_1); */
-    /* TEST(dgesv2_1); */
+    TEST(dgesv_nopiv_1); 
+    TEST(dgesv2_nopiv_1);
 
     tdp_proc proc;
     tdp_proc_init(&proc);
+    test_pdgesv_nopiv(&proc);
 
-    //test_pdgesv_nopiv(&proc);
     test_dgetf2();
-
 
     MPI_Finalize();
     return EXIT_SUCCESS;

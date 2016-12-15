@@ -51,12 +51,12 @@ static void trf_rand_matrix(tdp_proc *proc, int N, int b, tdp_trf_time *time)
     perf(&time->rand_time);
 
     perf(&p4);
-    int64_t info;
-    int64_t *ipiv = malloc(sizeof*ipiv * N);
+    //int64_t info;
+    //int64_t *ipiv = malloc(sizeof*ipiv * N);
 
-    tdp_pdgetrf(N, A, N, b,ipiv, &dist, proc, &info);
+    //tdp_pdgetrf(N, A, N, b,ipiv, &dist, proc, &info);
 
-    //tdp_pdgetrf_nopiv(N, A, N, b, &dist, proc);
+    tdp_pdgetrf_nopiv(N, A, N, b, &dist, proc);
 
     perf(&time->compute_time);
 
@@ -100,7 +100,6 @@ static void print_time(int rank, tdp_trf_time *time, int N)
     }
 }
 
-
 static void
 tdp_proc_init(tdp_proc *proc)
 {
@@ -110,24 +109,24 @@ tdp_proc_init(tdp_proc *proc)
 
 int main(int argc, char *argv[])
 {
-    perf_t i1, i2;
-
+    perf2_t i1, i2;
     srand(time(NULL)+(long)&argc);
 
     tdp_proc proc;
     tdp_trf_time time;
 
-    perf(&i1);
+    perf2(&i1);
     MPI_Init(NULL, NULL);
-    perf(&i2);
-    perf_diff(&i1, &i2);
+    perf2(&i2);
+    perf2_diff(&i1, &i2);
 
     tdp_proc_init(&proc);
-    fprintf(stderr, "init_time[%d]=%lu µs\n\n", proc.rank, PERF_MICRO(i2));
+    fprintf(stderr, "init_time[%d]=%lu µs\n\n", proc.rank, PERF2_MICRO(i2));
     print_proc_info(&proc);
 
     int b = 200;// 30, 40, 50, 80, 100, 125, 160, 200, 250, 400, 500, 625
-    int N = 5000;
+    //int N = 100000;
+    int N = 140000;
     // int N = 1000, b = 100;
     trf_rand_matrix(&proc, N, b, &time);
 

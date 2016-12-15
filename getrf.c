@@ -349,7 +349,6 @@ void tdp_dgetf2(int64_t m, int64_t n, double *A, int64_t lda,
     *info = 0L;
 
     for (int64_t k = 0; k < N; ++k) {
-
         int64_t p = k + cblas_idamax(m-k, A+k*lda+k, 1);
         ipiv[k] = p;
         if (A[p*lda+p] != 0) {
