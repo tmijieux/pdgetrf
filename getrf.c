@@ -58,8 +58,7 @@ compute_prev_block(int64_t NB, int64_t rank, tdp_trf_dist *dist)
     }
 }
 
-void tdp_trf_dist_snake2(
-    tdp_trf_dist *dist, int64_t N, int64_t b, tdp_proc *proc)
+void tdp_trf_dist_snake2(tdp_trf_dist *dist, int64_t N, int64_t b, tdp_proc *proc)
 {
     assert( (N % b) == 0 );
 
@@ -365,4 +364,76 @@ void tdp_dgetf2(int64_t m, int64_t n, double *A, int64_t lda,
                    A+k*lda+k+1, 1, A+(k+1)*lda+k, lda,
                    A+(k+1)*lda+k+1, lda);
     }
+
+}
+
+
+void tdp_pdgetrf( int64_t N, double *A, int64_t lda, int64_t b,
+		  int64_t ipiv[N], tdp_trf_dist *dist,
+		  tdp_proc *proc,int64_t *info)
+{
+    setup_mpi_types(b, lda, N);
+
+    assert( (N % b) == 0 );
+    const int64_t NB = N / b; /* nombre de bloc */
+
+    double *tmp = tdp_matrix_new(N, b);
+
+    for (int64_t k = 0; k < NB; ++k) {
+      bool me = dist->block_owner[k] == proc->rank;
+      int64_t K = dist->block_idx[k];
+      int64_t L = dist->local_block_count - (K+1);
+#ifdef DEBUG
+      printf("r=%d; k=%ld; K=%ld; L=%ld, NB=%ld;%s\n",
+	proc->rank, k, K, L, NB, me ? " me!" : "");
+#endif
+      double *trf_ptr = me ? A+b*(K*lda+k) : tmp+b*k;
+      int64_t trf_ld = me ? lda : N;
+      double *col_ptr = me ? A+b*(K*lda+k+1) : tmp+b*(k+1);
+      int64_t col_ld = me ? lda : N;
+      double *line_ptr = A+b*((K+1)*lda+k);
+      double *block_ptr = A+b*((K+1)*lda+k+1);
+
+      if (me)
+	// DGETF(k,k)
+	tdp_dgetf2(N-k*b, b, trf_ptr, trf_ld, ipiv+k*b, info);
+
+      //printf("r=%d checkpoint A\n", proc->rank);
+      // BCAST( A(k,k)<k> )
+
+      MPI_Datatype btype = me ? block_type : tmp_block_type;
+      MPI_Bcast(trf_ptr, NB-k, btype,
+		dist->block_owner[k], MPI_COMM_WORLD);
+      MPI_Bcast(ipiv+k*b, b, MPI_LONG,
+		dist->block_owner[k], MPI_COMM_WORLD);
+
+      if (L > 0) {
+	for(int i=0; i<b; ++i){
+	  ipiv[k*b+i]+=k*b;
+	  if (ipiv[k*b+i] != k*b+i)
+	    cblas_dswap(N, A+ipiv[k*b+i], lda, A+k*b+i, lda);
+	}
+	cblas_dtrsm(CblasColMajor, CblasLeft,
+		    CblasLower, CblasNoTrans, CblasUnit,
+		    b, b*L, 1.0, trf_ptr, trf_ld, line_ptr, lda);
+	// DTRSM RIGHT_LINE(k)
+	//printf("r=%d checkpoint D\n", proc->rank);
+
+	cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
+		    N-b*(k+1), b*L, b, -1.0,
+		    col_ptr, col_ld, line_ptr, lda, 1.0, block_ptr, lda);
+	// DGEMM( SUB_COL<k> x RIGHT_LINE )
+	//printf("r=%d checkpoint E\n", proc->rank);
+      }
+
+#ifdef DEBUG
+      MPI_Barrier(MPI_COMM_WORLD);
+      if (proc->rank == 0) {
+      printf("\n________________\n");
+    }
+      MPI_Barrier(MPI_COMM_WORLD);
+#endif
+    }
+    free(tmp);
+
 }

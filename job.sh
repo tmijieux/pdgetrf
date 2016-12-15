@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#SBATCH --job-name=mijieux1
+#SBATCH --job-name=mijieux-moussaid
 #SBATCH --output=out.1
 #SBATCH --error=err.1
 #SBATCH -p mistral

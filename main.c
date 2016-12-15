@@ -51,7 +51,13 @@ static void trf_rand_matrix(tdp_proc *proc, int N, int b, tdp_trf_time *time)
     perf(&time->rand_time);
 
     perf(&p4);
-    tdp_pdgetrf_nopiv(N, A, N, b, &dist, proc);
+    int64_t info;
+    int64_t *ipiv = malloc(sizeof*ipiv * N);
+
+    tdp_pdgetrf(N, A, N, b,ipiv, &dist, proc, &info);
+
+    //tdp_pdgetrf_nopiv(N, A, N, b, &dist, proc);
+
     perf(&time->compute_time);
 
     // ----------------
@@ -121,7 +127,7 @@ int main(int argc, char *argv[])
     print_proc_info(&proc);
 
     int b = 200;// 30, 40, 50, 80, 100, 125, 160, 200, 250, 400, 500, 625
-    int N = 40000;
+    int N = 5000;
     // int N = 1000, b = 100;
     trf_rand_matrix(&proc, N, b, &time);
 

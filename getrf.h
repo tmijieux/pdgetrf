@@ -15,4 +15,10 @@ void tdp_trf_dist_snake(
 void tdp_dgetf2(int64_t m, int64_t n, double *A, int64_t lda,
                 int64_t ipiv[m], int64_t *info);
 
+
+void tdp_pdgetrf( int64_t N, double *A, int64_t lda, int64_t b,
+		  int64_t ipiv[N], tdp_trf_dist *dist,
+		  tdp_proc *proc,int64_t *info);
+
+
 #endif // GETRF_H

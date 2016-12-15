@@ -8,7 +8,7 @@ CC=mpicc
 CFLAGS+=-fdiagnostics-color=auto
 
 ifdef DEBUG
-CFLAGS+=-ggdb -O0 -DDEBUG=1
+CFLAGS+=-ggdb -O3 -DDEBUG=1
 else
 CFLAGS+=-O3
 endif
