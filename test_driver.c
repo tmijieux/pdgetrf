@@ -74,7 +74,6 @@ void test_dgesv2_nopiv_1(void) // test solve Ax=b "scalaire"
     for (int i = 0; i < N; ++i) {
         assert( X[i] == 1.0 );
     }
-
 }
 
 static void dist_snake_init_test(
@@ -146,10 +145,12 @@ void test_pdgesv_nopiv(tdp_proc *proc)
         printf("solution:\n");
         tdp_vector_print(N, X, stdout);
     }
-
     for (int i = 0; i < N; ++i) {
+        if ( X[i] != 1.0 )
+            fprintf(stderr, "invalid value: X[%d]=%.15g\n", i, X[i]);
         assert( X[i] == 1.0 );
     }
+
 }
 
 #define TEST(type)                              \
@@ -190,14 +191,14 @@ int main(int argc, char *argv[])
     MPI_Init(NULL, NULL);
     srand(time(NULL)+(long)&argc);
 
-    TEST(dgesv_nopiv_1); 
-    TEST(dgesv2_nopiv_1);
+    /* TEST(dgesv_nopiv_1); */
+    /* TEST(dgesv2_nopiv_1); */
 
     tdp_proc proc;
     tdp_proc_init(&proc);
     test_pdgesv_nopiv(&proc);
 
-    test_dgetf2();
+    /* test_dgetf2(); */
 
     MPI_Finalize();
     return EXIT_SUCCESS;
