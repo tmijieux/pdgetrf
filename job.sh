@@ -15,4 +15,4 @@ WORKDIR=${WORKDIR:-${HOME}/pdgetrf}
 cd ${WORKDIR}
 . ./.module.load
 
-time mpirun -n 9 ./pdgetrf
+time mpirun -n 9 ./pdgetrf 20000 200

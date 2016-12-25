@@ -32,7 +32,7 @@ static void pdtrsv_upper_nonunit(
                         X+k*b, incX,
                         1.0, X, incX  );
         }
-        MPI_Bcast(X, N, MPI_DOUBLE, dist->block_owner[k], MPI_COMM_WORLD);
+        MPI_Bcast(X, (k+1)*b, MPI_DOUBLE, dist->block_owner[k], MPI_COMM_WORLD);
     }
 }
 
@@ -56,7 +56,7 @@ void pdtrsv_lower_unit(
                         X+k*b, incX,
                         1.0, X+(k+1)*b, incX  );
         }
-        MPI_Bcast(X, N, MPI_DOUBLE, dist->block_owner[k], MPI_COMM_WORLD);
+        MPI_Bcast(X+k*b, N-k*b, MPI_DOUBLE, dist->block_owner[k], MPI_COMM_WORLD);
     }
 }
 

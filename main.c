@@ -94,7 +94,7 @@ static void print_time(int rank, tdp_trf_time *time, int64_t N)
     if (!rank) {
         puts("");
         printf("N=%ld\n", N);
-        printf("MFLOPS=%g\n", PERF_MFLOPS2( compute, (2.0/3.0)*CUBE(N)));
+        printf("MFLOPS=%g\n", PERF_MFLOPS2( compute, (2.0/3.0)*CUBE(N)) );
         printf("GFLOPS=%g\n", PERF_MFLOPS2( compute,
                                             (2.0/3.0)*CUBE(N)) / 1000.0);
         printf("TFLOPS=%g\n", PERF_MFLOPS2( compute,
@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
     /* int N = 14000; */
     int64_t b = strtoul(argv[2], NULL, 10);
     int64_t N = strtoul(argv[1], NULL, 10);
-    
+
     trf_rand_matrix(&proc, N, b, &time);
 
     print_time(proc.rank, &time, N);
